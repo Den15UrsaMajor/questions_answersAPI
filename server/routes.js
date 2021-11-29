@@ -4,9 +4,13 @@ const Answer = require('./models/Answer.js');
 const AnswerPhoto = require('./models/AnswerPhoto.js');
 const router = express.Router();
 
+
 //GET that lists all questions,
 router.get('/qa/questions', async(req, res) => {
-  const questions = await Question.find()
+  const questions = await Question.find({
+    product_id: req.query.product_id,
+    reported: false
+  }).limit(10)
   res.send(questions)
 })
 //adds a question
