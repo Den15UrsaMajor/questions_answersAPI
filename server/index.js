@@ -6,7 +6,7 @@ const PORT = process.env.PORT || 4000;
 const routes = require('./routes');
 
 mongoose
-  .connect(DB_URL, {useNewUrlParser: true})
+  .connect(DB_URL, {useNewUrlParser: true, useUnifiedTopology: true})
   .then(() => {
     const app = express();
     app.use(express.json());
