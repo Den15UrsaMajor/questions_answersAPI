@@ -1,7 +1,6 @@
 const express = require('express');
 const Question = require('./models/Question.js');
 const Answer = require('./models/Answer.js');
-const AnswerPhoto = require('./models/AnswerPhoto.js');
 const mongo = require('./db.js');
 const router = express.Router();
 
@@ -25,16 +24,17 @@ router.get('/qa/:question_id/answers', async(req, res) => {
 router.get('/qa/:answer_id/answer_photos', async (req, res) => {
   const { answer_id } = req.query;
   const id = parseInt(answer_id);
-  const photos = await mongo.getAnswerPhotos(id);
+  const photos = await mongo.findPhotos(id);
   res.status(200).send(photos);
 })
 
-//adds a question
-router.post('/qa/:product_id', async (req, res, next) => {
-  Question.create(req.body).then((question) => {
-    res.status(201).send(question);
-  }).catch(next);
+//POST adds a question
+router.post('/qa/:product_id', async (req, res) => {
+  const data = req.body;
+  const questions = await mongo.addToQuestions(data);
+  res.status(201).send(questions);
 })
+
 //marks a question as reported
 router.put('/qa/question/:question_id/report', async (req, res, next) => {
   const questionID = req.query;
@@ -43,6 +43,7 @@ router.put('/qa/question/:question_id/report', async (req, res, next) => {
       res.send(update);
     }).catch(next);
 })
+
 //increments the helpful count for a question
 router.put('/qa/question/:question_id/helpful', async (req, res, next) => {
   const questionID = req.query;
@@ -52,10 +53,15 @@ router.put('/qa/question/:question_id/helpful', async (req, res, next) => {
     }).catch(next);
 })
 
-router.post('/qa/:question_id/answers', async (req, res, next) => {
-  Answer.create(req.body).then((answer) => {
-    res.status(201).send(answer);
-  }).catch(next);
+
+router.post('/qa/:question_id/answers', async (req, res) => {
+  const data = req.body;
+  const { photos } = data;
+  const answers = await mongo.addToAnswers(data);
+  if (photos) {
+    mongo.addToPhotos(photos);
+  }
+  res.status(201).send(answers);
 })
 
 router.put('/qa/answer/:answer_id/report', async (req, res, next) => {
@@ -73,17 +79,6 @@ router.put('/qa/answer/:answer_id/helpful', async (req, res, next) => {
       res.send(update)
     }).catch(next);
 })
-
-
-
-
-router.post('/qa/answer_photos', async (req, res, next) => {
-  AnswerPhoto.create(req.body).then((answerPhoto) => {
-    res.send(answerPhoto);
-  }).catch(next);
-})
-
-
 
 module.exports = router;
 

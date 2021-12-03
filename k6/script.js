@@ -13,11 +13,13 @@ export default function () {
     'is status 200': (r) => r.status === 200,
     'text verification': (r) => r.body.includes('asker_name')
   });
+  sleep(1);
   let resC = http.get('http://localhost:4000/api/qa/:answer_id/answer_photos?answer_id=154');
   check(resC, {
     'is status 200': (r) => r.status === 200,
     'text verification': (r) => r.body.includes('url')
   });
+  sleep(1);
 }
 
 
